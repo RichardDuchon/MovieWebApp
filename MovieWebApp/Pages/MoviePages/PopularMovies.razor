@@ -1,0 +1,85 @@
+﻿@page   "/MoviePages/PopularMovies/{PopularMoviesPage:int}"
+
+@inject Services.ApiService apiService
+@inject NavigationManager NavManager
+
+@using MovieBL.Models.Movie
+
+<h1>PopularMovies</h1>
+
+@if (movieListModel == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Original title</th>
+                <th>Popularity</th>
+                <th>Adult</th>
+                <th>Original Language</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (var i = 0; i < movieListModel.MovieInListModels.Count; i++)
+            {
+                var indexNumber = i;
+
+            <tr @onclick="(e => RedirectToMovieDetail(indexNumber))">
+                <td>@movieListModel.MovieInListModels[i].Title</td>
+                <td>@movieListModel.MovieInListModels[i].OriginalTitle</td>
+                <td>@movieListModel.MovieInListModels[i].Popularity</td>
+                <td>@movieListModel.MovieInListModels[i].Adult</td>
+                <td>@movieListModel.MovieInListModels[i].OriginalLanguage</td>
+
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+<button @onclick="(e=>NextOrPreviousPage(false))">Previous page</button>
+<button @onclick="(e=>NextOrPreviousPage(true))">Next page</button>
+
+@code{
+
+    MovieListModel movieListModel;
+
+    [Parameter]
+    public int PopularMoviesPage { get; set; } = 1;
+
+    private void RedirectToMovieDetail(int movieId)
+    {
+        NavManager.NavigateTo("/moviepages/moviedetail/" + movieListModel.MovieInListModels[movieId].Id);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        movieListModel = await apiService.GetListOfMoviesAsync(PopularMoviesPage);
+    }
+
+    private async void NextOrPreviousPage(bool nextOrPrevious)
+    {
+        if (nextOrPrevious)
+        {
+
+            movieListModel = await apiService.GetListOfMoviesAsync(++PopularMoviesPage);
+            NavManager.NavigateTo($"/MoviePages/PopularMovies/{PopularMoviesPage}");
+
+        }
+        else
+        {
+            if (PopularMoviesPage != 1)
+            {
+                movieListModel = await apiService.GetListOfMoviesAsync(--PopularMoviesPage);
+                NavManager.NavigateTo($"/MoviePages/PopularMovies/{PopularMoviesPage}");
+            }
+
+        }
+
+    }
+}
+
+

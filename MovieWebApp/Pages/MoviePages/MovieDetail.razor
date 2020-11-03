@@ -1,0 +1,92 @@
+﻿@page   "/MoviePages/MovieDetail/{movieid:int}"
+
+@inject Services.ApiService apiService
+
+@using MovieBL.Models.Movie
+
+
+<h3>MovieDetail</h3>
+@code{
+
+    [Parameter]
+    public int MovieId { get; set; }
+
+    MovieDetailModel movieDetailModel;
+
+    protected override async Task OnInitializedAsync()
+    {
+        movieDetailModel = await apiService.GetMovieDetailAsync(MovieId);
+    }
+}
+
+@if (movieDetailModel == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Original title</th>
+                <th>Popularity</th>
+                <th>Adult</th>
+                <th>Budget</th>
+                <th>Release date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@movieDetailModel.Title</td>
+                <td>@movieDetailModel.OriginalTitle</td>
+                <td>@movieDetailModel.Popularity</td>
+                <td>@movieDetailModel.Adult</td>
+                <td>@movieDetailModel.Budget</td>
+                <td>@movieDetailModel.ReleaseDate</td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Average vote</th>
+                <th>Vote count</th>
+                <th>Revenue</th>
+                <th>Runtime</th>
+                <th>Status</th>
+                <th>Original language</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@movieDetailModel.VoteAverage</td>
+                <td>@movieDetailModel.VoteCount</td>
+                <td>@movieDetailModel.Revenue</td>
+                <td>@movieDetailModel.Runtime</td>
+                <td>@movieDetailModel.Status</td>
+                <td>@movieDetailModel.OriginalLanguage</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h1>Genres</h1>
+    @foreach (var genre in @movieDetailModel.Genres)
+    {
+        <li>@genre.Name</li>
+    }
+
+    @if (@movieDetailModel.ProductionCompanies.Count > 0)
+    {
+        <h1>Production companies</h1>
+        @foreach (var company in @movieDetailModel.ProductionCompanies)
+        {
+            <li>@company.Name</li>
+            <li>@company.OriginCountry</li>
+        }
+    }
+
+    <h1>Overview</h1>
+    <li>@movieDetailModel.Overview</li>
+}
+
